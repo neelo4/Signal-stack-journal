@@ -2,7 +2,7 @@
 title: Soft Rituals for a Radiant Morning
 highlight: Begin your day with a calm skincare practice that soothes the mind and leaves the skin luminous.
 category: Beauty Rituals
-coverImage: https://images.unsplash.com/photo-1542389705-06c4d548ccfb?auto=format&fit=crop&w=1600&q=80
+coverImage: https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=1600&q=80
 readingTime: 6 min read
 publishedAt: 2025-01-09
 author:

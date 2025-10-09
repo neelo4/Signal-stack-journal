@@ -42,6 +42,14 @@ npm run build   # outputs static assets to dist/
 npm run preview # optional: run a local preview server
 ```
 
+## Analytics & SEO
+
+- Web traffic is captured with [Vercel Analytics](https://vercel.com/docs/analytics) via the `<Analytics />` component in `src/main.tsx`.
+- For Google Analytics 4, create a Measurement ID and add it to an environment variable:
+  - Local development: create `.env.local` with `VITE_GA_MEASUREMENT_ID=G-XXXXXXXXXX`.
+  - In Vercel: Project → Settings → Environment Variables → add the same key/value in the Production environment and redeploy.
+- Meta tags for search engines and social sharing live in `index.html`. Update the description, keywords, or social image (`public/social-card.jpg`) whenever your brand messaging evolves.
+
 ## Deploying to Vercel
 
 1. Push this repo to GitHub or GitLab.

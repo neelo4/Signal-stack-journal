@@ -3,6 +3,43 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { posts } from './data/posts'
 
+type QuoteHighlightProps = {
+  text: string
+  variant?: 'hero' | 'card'
+}
+
+const QuoteHighlight = ({ text, variant = 'hero' }: QuoteHighlightProps) => {
+  const isHero = variant === 'hero'
+
+  const containerClasses = isHero
+    ? 'relative overflow-hidden rounded-[28px] border border-rose/50 bg-rose/25 px-8 py-6 shadow-soft md:px-10 md:py-7'
+    : 'relative overflow-hidden rounded-3xl border border-rose/40 bg-rose/20 px-6 py-5 shadow-[0_12px_30px_-20px_rgba(245,70,123,0.55)]'
+
+  const textClasses = isHero
+    ? 'pl-9 text-lg font-medium text-ink/90 md:pl-12 md:text-2xl'
+    : 'pl-8 text-sm font-medium text-ink/85 md:text-base'
+
+  const openingQuoteClasses = isHero
+    ? 'absolute left-6 top-3 font-display text-5xl text-rose/70 md:left-8 md:text-6xl'
+    : 'absolute left-4 top-2 font-display text-4xl text-rose/60'
+
+  const closingQuoteClasses = isHero
+    ? 'absolute bottom-2 right-6 font-display text-4xl text-rose/60 md:bottom-3 md:right-8 md:text-5xl'
+    : 'absolute bottom-1 right-5 font-display text-3xl text-rose/50'
+
+  return (
+    <div className={containerClasses}>
+      <span aria-hidden="true" className={openingQuoteClasses}>
+        “
+      </span>
+      <p className={textClasses}>{text}</p>
+      <span aria-hidden="true" className={closingQuoteClasses}>
+        ”
+      </span>
+    </div>
+  )
+}
+
 function App() {
   const [activeSlug, setActiveSlug] = useState(posts[0]?.slug ?? '')
   const featured = useMemo(() => {
@@ -87,9 +124,7 @@ function App() {
           </div>
 
           <div className="space-y-8 px-8 py-12 text-base leading-relaxed text-slate-600 md:px-12 md:py-16 md:text-lg">
-            <p className="text-xl font-medium text-ink md:text-2xl">
-              {featured.summary}
-            </p>
+            <QuoteHighlight text={featured.summary} variant="hero" />
             <div className="prose prose-lg max-w-none text-slate-600 prose-headings:font-display prose-headings:text-ink prose-strong:text-ink prose-a:text-ink prose-a:font-semibold hover:prose-a:text-ink/80">
               <ReactMarkdown remarkPlugins={[remarkGfm]}>
                 {featured.content}
@@ -172,9 +207,7 @@ function App() {
                   </div>
                 </div>
                 <div className="flex flex-col gap-5 px-7 py-8 text-sm text-slate-600">
-                  <p className="text-base leading-relaxed text-ink/80">
-                    {post.summary}
-                  </p>
+                  <QuoteHighlight text={post.summary} variant="card" />
                   <div className="flex flex-wrap items-center gap-3 text-xs font-medium uppercase tracking-[0.25em] text-ink/40">
                     <span>{post.publishedAt}</span>
                     <span className="h-1 w-1 rounded-full bg-ink/30" />

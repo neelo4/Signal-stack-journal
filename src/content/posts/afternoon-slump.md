@@ -2,7 +2,7 @@
 title: Nervous System Care in the Afternoon Slump
 highlight: Micro-moments of rest regulate hormones and keep the complexion bright during demanding workdays.
 category: Mental Wellness
-coverImage: https://images.unsplash.com/photo-1506126618408-32547260c916?auto=format&fit=crop&w=1600&q=80
+coverImage: https://images.unsplash.com/photo-1528712306091-ed0763094c98?auto=format&fit=crop&w=1600&q=80
 readingTime: 4 min read
 publishedAt: 2024-12-11
 author:
