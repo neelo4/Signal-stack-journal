@@ -1,8 +1,10 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-import { posts } from './data/posts'
+import { posts as localPosts } from './data/posts'
+import type { BlogPost } from './data/posts'
 import AboutMe from './components/AboutMe'
+import { supabase, hasSupabaseConfig } from './lib/supabaseClient'
 
 type QuoteHighlightProps = {
   text: string
@@ -12,9 +14,9 @@ type QuoteHighlightProps = {
 
 const QuoteHighlight = ({ text, variant = 'hero' }: QuoteHighlightProps) => {
   const isHero = variant === 'hero'
-  const borderColor = isHero ? '#d9dee7' : '#e1e6ef'
-  const backgroundColor = isHero ? '#f2f4f8' : '#f5f6fa'
-  const quoteColor = '#b0b7c6'
+  const borderColor = isHero ? '#f5bfd8' : '#e1e6ef'
+  const backgroundColor = isHero ? '#fdebf3' : '#f5f6fa'
+  const quoteColor = isHero ? '#ea91b6' : '#b0b7c6'
 
   return (
     <div
@@ -50,24 +52,142 @@ const QuoteHighlight = ({ text, variant = 'hero' }: QuoteHighlightProps) => {
   )
 }
 
+const formatPublishedDate = (value?: string | null) => {
+  if (!value) return ''
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return ''
+  return date.toLocaleDateString('en', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  })
+}
+
+const normalizeTags = (value: unknown): string[] => {
+  if (Array.isArray(value)) {
+    return value
+      .map((tag) => `${tag}`.trim())
+      .filter((tag) => tag.length > 0)
+  }
+
+  if (typeof value === 'string') {
+    return value
+      .split(',')
+      .map((tag) => tag.trim())
+      .filter((tag) => tag.length > 0)
+  }
+
+  return []
+}
+
+const mapRowToPost = (row: Record<string, unknown>): BlogPost | null => {
+  if (!row) return null
+  const slug = (row.slug as string) || (row.id as string)
+  if (!slug) return null
+
+  let publishedISO = new Date().toISOString()
+  if (typeof row.published_at === 'string') {
+    const parsed = new Date(row.published_at)
+    if (!Number.isNaN(parsed.getTime())) {
+      publishedISO = parsed.toISOString()
+    }
+  }
+
+  const fallback = localPosts[0]
+
+  return {
+    id: (row.id as string) ?? slug,
+    slug,
+    title: (row.title as string) ?? fallback?.title ?? 'Untitled story',
+    highlight: (row.highlight as string) ?? fallback?.highlight ?? '',
+    category: (row.category as string) ?? fallback?.category ?? 'Journal',
+    coverImage: (row.cover_image as string) ?? fallback?.coverImage ?? '',
+    readingTime: (row.reading_time as string) ?? fallback?.readingTime ?? '5 min read',
+    publishedAt: formatPublishedDate(row.published_at as string) ?? fallback?.publishedAt ?? '',
+    publishedAtISO: publishedISO,
+    author: {
+      name: (row.author_name as string) ?? fallback?.author.name ?? 'Neelofar Khan',
+      role: (row.author_role as string) ?? fallback?.author.role ?? '',
+      avatar: (row.author_avatar as string) ?? fallback?.author.avatar ?? '/images/neelofar-khan.jpeg',
+    },
+    summary: (row.summary as string) ?? fallback?.summary ?? '',
+    tags: normalizeTags(row.tags) ?? fallback?.tags ?? [],
+    content: (row.content as string) ?? fallback?.content ?? '',
+    pinned: Boolean(row.pinned ?? false),
+    accentColor: (row.accent_color as string) ?? '#d9dee7',
+  }
+}
+
 function App() {
-  const initialPinnedSlug = useMemo(() => {
-    const pinnedPost = posts.find((post) => post.pinned)
-    return pinnedPost?.slug ?? posts[0]?.slug ?? ''
+  const [posts, setPosts] = useState<BlogPost[]>(localPosts)
+  const [pinnedSlug, setPinnedSlug] = useState<string>('')
+  const [activeSlug, setActiveSlug] = useState<string>('')
+  const [isLoadingPosts, setLoadingPosts] = useState<boolean>(hasSupabaseConfig)
+
+  useEffect(() => {
+    if (!supabase) return
+    const client = supabase
+    let isCancelled = false
+
+    const loadPosts = async () => {
+      setLoadingPosts(true)
+      const { data, error } = await client
+        .from('posts')
+        .select('*')
+        .order('pinned', { ascending: false })
+        .order('published_at', { ascending: false })
+
+      if (!isCancelled) {
+        if (error) {
+          console.error('[Supabase] Failed to load posts', error)
+        } else if (data && Array.isArray(data) && data.length > 0) {
+          const mapped = data
+            .map((row) => mapRowToPost(row))
+            .filter((post): post is BlogPost => Boolean(post))
+
+          if (mapped.length > 0) {
+            setPosts(mapped)
+          }
+        }
+        setLoadingPosts(false)
+      }
+    }
+
+    loadPosts()
+    return () => {
+      isCancelled = true
+    }
   }, [])
 
-  const [pinnedSlug, setPinnedSlug] = useState(initialPinnedSlug)
-  const [activeSlug, setActiveSlug] = useState(initialPinnedSlug)
+  useEffect(() => {
+    if (!posts.length) return
+    const pinned = posts.find((post) => post.pinned)
+    const fallback = pinned?.slug ?? posts[0]?.slug ?? ''
+
+    setPinnedSlug((prev) => {
+      if (prev && posts.some((post) => post.slug === prev)) {
+        return prev
+      }
+      return fallback
+    })
+
+    setActiveSlug((prev) => {
+      if (prev && posts.some((post) => post.slug === prev)) {
+        return prev
+      }
+      return fallback
+    })
+  }, [posts])
 
   const featured = useMemo(() => {
     if (!activeSlug) return posts[0]
     return posts.find((post) => post.slug === activeSlug) ?? posts[0]
-  }, [activeSlug])
+  }, [activeSlug, posts])
 
-  const morePosts = useMemo(
-    () => (featured ? posts.filter((post) => post.slug !== featured.slug) : posts),
-    [featured],
-  )
+  const morePosts = useMemo(() => {
+    const remaining = featured ? posts.filter((post) => post.slug !== featured.slug) : posts
+    return remaining
+  }, [featured, posts])
 
   const handleSelectPost = (slug: string) => {
     setActiveSlug(slug)
@@ -101,16 +221,29 @@ function App() {
   return (
     <div className="min-h-screen bg-[#f3f5f8] text-ink">
       <div className="mx-auto flex max-w-6xl flex-col gap-16 px-6 pb-24 pt-14 md:px-10">
+        {hasSupabaseConfig ? (
+          isLoadingPosts ? (
+            <div className="rounded-full bg-rose/20 px-5 py-2 text-center text-xs font-semibold uppercase tracking-[0.28em] text-rose/80">
+              Syncing stories from Supabase…
+            </div>
+          ) : null
+        ) : (
+          <div className="rounded-[28px] border border-slate-200 bg-white/80 px-6 py-3 text-xs text-ink/60 shadow-soft md:text-sm">
+            Posts are currently sourced from local Markdown files. Add Supabase credentials to manage
+            content from the cloud.
+          </div>
+        )}
+
         <header className="flex flex-col gap-4 pb-10">
           <div className="inline-flex w-fit items-center gap-2 rounded-full bg-rose/60 px-4 py-1 text-xs font-semibold uppercase tracking-[0.35em] text-ink/80">
             <span>Beauty & Mind</span>
           </div>
           <h1 className="text-4xl font-display font-semibold leading-tight text-ink md:text-5xl">
-            Daily rituals for glowing skin and grounded minds.
+            Tech-guided rituals for a calm mind and luminous presence.
           </h1>
           <p className="max-w-2xl text-base text-ink/70 md:text-lg">
-            A slow-beauty journal blending modern skincare science with mindful
-            practices that keep your nervous system calm.
+            A modern journal blending mindful interfaces, nervous-system care, and natural beauty so
+            your routines feel intelligent and deeply human.
           </p>
           <div className="h-[3px] w-20 rounded-full bg-rose/60" />
         </header>
@@ -223,7 +356,9 @@ function App() {
             </button>
           </div>
 
-          <div className="grid gap-8 md:grid-cols-2">
+          <div
+            className={`grid gap-8 ${morePosts.length === 1 ? 'md:grid-cols-1' : 'md:grid-cols-2'}`}
+          >
             {morePosts.map((post) => (
               <article
                 key={post.slug}
@@ -240,7 +375,7 @@ function App() {
                     window.scrollTo({ top: 0, behavior: 'smooth' })
                   }
                 }}
-                className="group cursor-pointer overflow-hidden rounded-[32px] bg-white shadow-soft ring-1 ring-transparent transition duration-300 hover:-translate-y-1 hover:ring-sky/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky/70"
+                className="group w-full cursor-pointer overflow-hidden rounded-[32px] bg-white shadow-soft ring-1 ring-transparent transition duration-300 hover:-translate-y-1 hover:ring-sky/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky/70"
               >
                 <div className="relative h-64 w-full overflow-hidden bg-ink/5">
                   <img

@@ -52,6 +52,18 @@ npm run preview # optional: run a local preview server
 - Optional: If you want the “Send love” form in the About section to work, create a Formspree (or similar) endpoint and set `VITE_FEEDBACK_FORM_ENDPOINT=https://formspree.io/f/your-id`.
 - Meta tags for search engines and social sharing live in `index.html`. Update the description, keywords, or social image (`public/social-card.jpg`) whenever your brand messaging evolves.
 
+## Optional: Supabase CMS
+
+Switch from local Markdown to a hosted database:
+
+1. Create a Supabase project and copy the project URL + anon key.
+2. In the Supabase SQL editor, run a migration to create a `posts` table that mirrors the app fields: `slug`, `title`, `highlight`, `category`, `cover_image`, `reading_time`, `published_at`, `summary`, `content`, `tags` (text array or comma-separated text), `pinned`, `accent_color`, plus `author_name`, `author_role`, `author_avatar`.
+3. Seed the table with your current stories (insert manually, via CSV, or with a quick script).
+4. Add credentials:
+   - `.env.local`: `VITE_SUPABASE_URL=...` and `VITE_SUPABASE_ANON_KEY=...`
+   - Vercel → Settings → Environment Variables → add the same keys
+5. Redeploy. When credentials exist the app fetches posts from Supabase; otherwise it falls back to the Markdown files.
+
 ## Deploying to Vercel
 
 1. Push this repo to GitHub or GitLab.
