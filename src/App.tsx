@@ -73,7 +73,7 @@ function App() {
   return (
     <div className="min-h-screen bg-[#f3f5f8] text-ink">
       <div className="mx-auto flex max-w-6xl flex-col gap-16 px-6 pb-24 pt-14 md:px-10">
-        <header className="flex flex-col gap-4">
+        <header className="flex flex-col gap-4 pb-10">
           <span className="inline-flex w-fit items-center gap-2 rounded-full bg-rose/60 px-4 py-1 text-xs font-semibold uppercase tracking-[0.35em] text-ink/80">
             Beauty & Mind
           </span>
@@ -84,6 +84,7 @@ function App() {
             A slow-beauty journal blending modern skincare science with mindful
             practices that keep your nervous system calm.
           </p>
+          <div className="h-[3px] w-20 rounded-full bg-rose/60" />
         </header>
 
         <article className="overflow-hidden rounded-[42px] bg-white shadow-soft ring-1 ring-white/70">
