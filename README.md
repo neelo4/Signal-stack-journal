@@ -22,6 +22,7 @@ Open the local dev server (usually http://localhost:5173) and edit files inside 
 - Posts live as Markdown files under `src/content/posts/`.
 - Each file begins with front matter (between `---`) for title, highlight, summary, metadata, and author details.
 - The Markdown body renders with Tailwind typography so headings, lists, links, and tables just work.
+- To pin a story to the top, add `pinned: true` to the post front matter. Only one post should use it at a time; the rest fall back to newest-first ordering.
 
 To create a new entry, duplicate an existing `.md` file, adjust the front matter, and write your story in Markdown. The newest `publishedAt` date is chosen as the featured hero; others fall into the card grid automatically.
 
@@ -48,6 +49,7 @@ npm run preview # optional: run a local preview server
 - For Google Analytics 4, create a Measurement ID and add it to an environment variable:
   - Local development: create `.env.local` with `VITE_GA_MEASUREMENT_ID=G-XXXXXXXXXX`.
   - In Vercel: Project → Settings → Environment Variables → add the same key/value in the Production environment and redeploy.
+- Optional: If you want the “Send love” form in the About section to work, create a Formspree (or similar) endpoint and set `VITE_FEEDBACK_FORM_ENDPOINT=https://formspree.io/f/your-id`.
 - Meta tags for search engines and social sharing live in `index.html`. Update the description, keywords, or social image (`public/social-card.jpg`) whenever your brand messaging evolves.
 
 ## Deploying to Vercel

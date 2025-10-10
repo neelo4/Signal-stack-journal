@@ -13,7 +13,7 @@ export default {
         rose: '#f5d0e6',
       },
       fontFamily: {
-        display: ['"Playfair Display"', 'serif'],
+        display: ['"Sora"', 'sans-serif'],
         sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
       },
       boxShadow: {

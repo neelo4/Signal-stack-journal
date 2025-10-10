@@ -2,38 +2,48 @@ import { useMemo, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { posts } from './data/posts'
+import AboutMe from './components/AboutMe'
 
 type QuoteHighlightProps = {
   text: string
   variant?: 'hero' | 'card'
+  accent?: string
 }
 
 const QuoteHighlight = ({ text, variant = 'hero' }: QuoteHighlightProps) => {
   const isHero = variant === 'hero'
-
-  const containerClasses = isHero
-    ? 'relative overflow-hidden rounded-[28px] border border-rose/50 bg-rose/25 px-8 py-6 shadow-soft md:px-10 md:py-7'
-    : 'relative overflow-hidden rounded-3xl border border-rose/40 bg-rose/20 px-6 py-5 shadow-[0_12px_30px_-20px_rgba(245,70,123,0.55)]'
-
-  const textClasses = isHero
-    ? 'pl-9 text-lg font-medium text-ink/90 md:pl-12 md:text-2xl'
-    : 'pl-8 text-sm font-medium text-ink/85 md:text-base'
-
-  const openingQuoteClasses = isHero
-    ? 'absolute left-6 top-3 font-display text-5xl text-rose/70 md:left-8 md:text-6xl'
-    : 'absolute left-4 top-2 font-display text-4xl text-rose/60'
-
-  const closingQuoteClasses = isHero
-    ? 'absolute bottom-2 right-6 font-display text-4xl text-rose/60 md:bottom-3 md:right-8 md:text-5xl'
-    : 'absolute bottom-1 right-5 font-display text-3xl text-rose/50'
+  const borderColor = isHero ? '#d9dee7' : '#e1e6ef'
+  const backgroundColor = isHero ? '#f2f4f8' : '#f5f6fa'
+  const quoteColor = '#b0b7c6'
 
   return (
-    <div className={containerClasses}>
-      <span aria-hidden="true" className={openingQuoteClasses}>
+    <div
+      className={`relative overflow-hidden ${isHero ? 'rounded-[28px] px-8 py-6 shadow-soft md:px-10 md:py-7' : 'rounded-3xl px-6 py-5 shadow-[0_14px_32px_-16px_rgba(0,0,0,0.2)]'}`}
+      style={{
+        border: `1px solid ${borderColor}`,
+        background: backgroundColor,
+      }}
+    >
+      <span
+        aria-hidden="true"
+        className={`absolute font-display ${isHero ? 'left-6 top-3 text-5xl md:left-8 md:text-6xl' : 'left-4 top-2 text-4xl'}`}
+        style={{ color: quoteColor }}
+      >
         “
       </span>
-      <p className={textClasses}>{text}</p>
-      <span aria-hidden="true" className={closingQuoteClasses}>
+      <p
+        className={`text-ink ${isHero ? 'pl-9 text-[1.05rem] leading-7 md:pl-12 md:text-xl md:leading-8' : 'pl-8 text-[0.9rem] leading-6 md:text-[1rem] md:leading-6'}`}
+        style={{
+          fontWeight: 500,
+        }}
+      >
+        {text}
+      </p>
+      <span
+        aria-hidden="true"
+        className={`absolute font-display ${isHero ? 'bottom-2 right-6 text-4xl md:bottom-3 md:right-8 md:text-5xl' : 'bottom-1 right-5 text-3xl'}`}
+        style={{ color: quoteColor }}
+      >
         ”
       </span>
     </div>
@@ -41,15 +51,33 @@ const QuoteHighlight = ({ text, variant = 'hero' }: QuoteHighlightProps) => {
 }
 
 function App() {
-  const [activeSlug, setActiveSlug] = useState(posts[0]?.slug ?? '')
+  const initialPinnedSlug = useMemo(() => {
+    const pinnedPost = posts.find((post) => post.pinned)
+    return pinnedPost?.slug ?? posts[0]?.slug ?? ''
+  }, [])
+
+  const [pinnedSlug, setPinnedSlug] = useState(initialPinnedSlug)
+  const [activeSlug, setActiveSlug] = useState(initialPinnedSlug)
+
   const featured = useMemo(() => {
     if (!activeSlug) return posts[0]
     return posts.find((post) => post.slug === activeSlug) ?? posts[0]
   }, [activeSlug])
+
   const morePosts = useMemo(
     () => (featured ? posts.filter((post) => post.slug !== featured.slug) : posts),
     [featured],
   )
+
+  const handleSelectPost = (slug: string) => {
+    setActiveSlug(slug)
+  }
+
+  const handlePinPost = (slug: string) => {
+    setPinnedSlug(slug)
+    setActiveSlug(slug)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 
   if (!featured) {
     return (
@@ -74,9 +102,9 @@ function App() {
     <div className="min-h-screen bg-[#f3f5f8] text-ink">
       <div className="mx-auto flex max-w-6xl flex-col gap-16 px-6 pb-24 pt-14 md:px-10">
         <header className="flex flex-col gap-4 pb-10">
-          <span className="inline-flex w-fit items-center gap-2 rounded-full bg-rose/60 px-4 py-1 text-xs font-semibold uppercase tracking-[0.35em] text-ink/80">
-            Beauty & Mind
-          </span>
+          <div className="inline-flex w-fit items-center gap-2 rounded-full bg-rose/60 px-4 py-1 text-xs font-semibold uppercase tracking-[0.35em] text-ink/80">
+            <span>Beauty & Mind</span>
+          </div>
           <h1 className="text-4xl font-display font-semibold leading-tight text-ink md:text-5xl">
             Daily rituals for glowing skin and grounded minds.
           </h1>
@@ -99,9 +127,35 @@ function App() {
               <span className="inline-flex w-fit items-center rounded-full bg-white/20 px-4 py-1 text-xs font-medium uppercase tracking-[0.35em] text-white/95">
                 {featured.category}
               </span>
-              <h2 className="max-w-3xl font-display text-3xl font-semibold tracking-tight md:text-5xl">
-                {featured.title}
-              </h2>
+              <div className="flex items-center gap-3">
+                <h2 className="max-w-3xl font-display text-3xl font-semibold tracking-tight md:text-5xl">
+                  {featured.title}
+                </h2>
+                <button
+                  type="button"
+                  onClick={() => handlePinPost(featured.slug)}
+                  className="rounded-full border border-white/40 bg-white/10 p-3 text-white transition hover:bg-white/25"
+                  aria-label={
+                    featured.slug === pinnedSlug
+                      ? 'Pinned story'
+                      : 'Pin this story to the top'
+                  }
+                >
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill={featured.slug === pinnedSlug ? '#F7BFD6' : 'none'}
+                    stroke="#ffffff"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M12 17v5" />
+                    <path d="M8 3v5l-2 4h12l-2-4V3" />
+                  </svg>
+                </button>
+              </div>
               <p className="max-w-2xl text-base text-white/80 md:text-lg">
                 {featured.highlight}
               </p>
@@ -176,13 +230,13 @@ function App() {
                 role="button"
                 tabIndex={0}
                 onClick={() => {
-                  setActiveSlug(post.slug)
+                  handleSelectPost(post.slug)
                   window.scrollTo({ top: 0, behavior: 'smooth' })
                 }}
                 onKeyDown={(event) => {
                   if (event.key === 'Enter' || event.key === ' ') {
                     event.preventDefault()
-                    setActiveSlug(post.slug)
+                    handleSelectPost(post.slug)
                     window.scrollTo({ top: 0, behavior: 'smooth' })
                   }
                 }}
@@ -195,6 +249,33 @@ function App() {
                     className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-ink/75 via-ink/25 to-transparent opacity-90 transition duration-300 group-hover:opacity-100" />
+                  <button
+                    type="button"
+                    onClick={(event) => {
+                      event.stopPropagation()
+                      handlePinPost(post.slug)
+                    }}
+                    className="absolute right-5 top-5 rounded-full border border-white/40 bg-white/10 p-2 text-white transition hover:bg-white/25"
+                    aria-label={
+                      post.slug === pinnedSlug
+                        ? 'Pinned story'
+                        : 'Pin this story to the top'
+                    }
+                  >
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill={post.slug === pinnedSlug ? '#F2448B' : 'none'}
+                      stroke="#ffffff"
+                      strokeWidth="1.6"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M12 17v5" />
+                      <path d="M8 3v5l-2 4h12l-2-4V3" />
+                    </svg>
+                  </button>
                   <div className="absolute bottom-6 left-6 flex flex-col gap-3 text-white">
                     <span className="inline-flex w-fit items-center rounded-full bg-white/20 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.35em] text-white/90">
                       {post.category}
@@ -208,7 +289,7 @@ function App() {
                   </div>
                 </div>
                 <div className="flex flex-col gap-5 px-7 py-8 text-sm text-slate-600">
-                  <QuoteHighlight text={post.summary} variant="card" />
+                  <QuoteHighlight text={post.summary} variant="card" accent={post.accentColor} />
                   <div className="flex flex-wrap items-center gap-3 text-xs font-medium uppercase tracking-[0.25em] text-ink/40">
                     <span>{post.publishedAt}</span>
                     <span className="h-1 w-1 rounded-full bg-ink/30" />
@@ -229,6 +310,14 @@ function App() {
             ))}
           </div>
         </section>
+
+        <AboutMe
+          latestPost={featured}
+          onSelectPost={(slug) => {
+            handleSelectPost(slug)
+            window.scrollTo({ top: 0, behavior: 'smooth' })
+          }}
+        />
       </div>
     </div>
   )

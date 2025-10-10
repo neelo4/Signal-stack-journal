@@ -5,6 +5,7 @@ category: Holistic Beauty
 coverImage: https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1600&q=80
 readingTime: 7 min read
 publishedAt: 2025-02-14
+pinned: true
 author:
   name: Neelofar Khan
   role: Founder & Editor, Vibe Coding

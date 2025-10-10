@@ -29,6 +29,8 @@ type FrontMatter = {
   }
   summary: string
   tags: string[] | string
+  pinned?: boolean | string
+  accentColor?: string
 }
 
 export type BlogPost = {
@@ -49,6 +51,8 @@ export type BlogPost = {
   summary: string
   tags: string[]
   content: string
+  pinned: boolean
+  accentColor: string
 }
 
 const dateFormatter = new Intl.DateTimeFormat('en', {
@@ -56,6 +60,15 @@ const dateFormatter = new Intl.DateTimeFormat('en', {
   month: 'short',
   day: 'numeric',
 })
+
+const createAccentFromCategory = (category: string): string => {
+  const key = category.toLowerCase()
+  if (key.includes('beauty')) return '#f5bfd8'
+  if (key.includes('mental')) return '#c8e6ff'
+  if (key.includes('sleep')) return '#d5c4ff'
+  if (key.includes('movement')) return '#d3f1e4'
+  return '#f5bfd8'
+}
 
 export const posts: BlogPost[] = Object.entries(rawModules)
   .map(([filePath, fileContent]) => {
@@ -78,6 +91,16 @@ export const posts: BlogPost[] = Object.entries(rawModules)
         ? [data.tags]
         : []
 
+    const pinned =
+      typeof data.pinned === 'string'
+        ? data.pinned.toLowerCase() === 'true'
+        : Boolean(data.pinned)
+
+    const accentColor =
+      'accentColor' in data && typeof (data as any).accentColor === 'string'
+        ? ((data as any).accentColor as string)
+        : createAccentFromCategory(data.category)
+
     return {
       id: slug,
       slug,
@@ -92,8 +115,14 @@ export const posts: BlogPost[] = Object.entries(rawModules)
       summary: data.summary,
       tags,
       content,
+      pinned,
+      accentColor,
     }
   })
-  .sort((a, b) =>
-    a.publishedAtISO > b.publishedAtISO ? -1 : a.publishedAtISO < b.publishedAtISO ? 1 : 0,
-  )
+  .sort((a, b) => {
+    if (a.pinned && !b.pinned) return -1
+    if (!a.pinned && b.pinned) return 1
+    const aTime = new Date(a.publishedAtISO).getTime()
+    const bTime = new Date(b.publishedAtISO).getTime()
+    return bTime - aTime
+  })
