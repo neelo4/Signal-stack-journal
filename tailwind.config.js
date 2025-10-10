@@ -13,8 +13,20 @@ export default {
         rose: '#f5d0e6',
       },
       fontFamily: {
-        display: ['"Sora"', 'sans-serif'],
-        sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+        display: [
+          '"Avenir Next"',
+          'Avenir',
+          '"Plus Jakarta Sans"',
+          'system-ui',
+          'sans-serif',
+        ],
+        sans: [
+          '"Avenir Next"',
+          'Avenir',
+          '"Plus Jakarta Sans"',
+          'system-ui',
+          'sans-serif',
+        ],
       },
       boxShadow: {
         soft: '0 20px 50px -20px rgba(31, 41, 51, 0.35)',

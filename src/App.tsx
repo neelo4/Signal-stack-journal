@@ -200,18 +200,26 @@ function App() {
   }
 
   if (!featured) {
+    if (isLoadingPosts) {
+      return (
+        <div className="flex min-h-screen items-center justify-center bg-[#f3f5f8] px-6">
+          <div className="flex items-center gap-3 rounded-full bg-white px-5 py-3 text-xs font-semibold uppercase tracking-[0.28em] text-ink/60 shadow-soft">
+            <span className="h-3 w-3 animate-spin rounded-full border-2 border-rose/30 border-t-rose" />
+            Syncing stories…
+          </div>
+        </div>
+      )
+    }
+
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#f3f5f8] px-6 text-center text-ink/60">
         <div className="max-w-md space-y-4">
           <span className="inline-flex items-center rounded-full bg-rose/40 px-3 py-1 text-xs font-semibold uppercase tracking-[0.35em] text-ink/70">
             Beauty & Mind
           </span>
-          <h1 className="text-3xl font-display font-semibold text-ink">
-            Add your first story
-          </h1>
+          <h1 className="text-3xl font-display font-semibold text-ink">No stories yet</h1>
           <p className="text-sm leading-relaxed">
-            Drop a Markdown file into <code>src/content/posts/</code> and restart
-            the dev server. The newest publish date will appear here automatically.
+            Publish your first entry from Supabase and it will appear here instantly.
           </p>
         </div>
       </div>
@@ -289,7 +297,10 @@ function App() {
                   </svg>
                 </button>
               </div>
-              <p className="max-w-2xl text-base text-white/80 md:text-lg">
+              <p
+                className="max-w-2xl text-base text-white md:text-lg"
+                style={{ textShadow: '0 6px 18px rgba(0,0,0,0.45)' }}
+              >
                 {featured.highlight}
               </p>
               <div className="flex flex-wrap items-center gap-3 text-sm text-white/70">
