@@ -1,12 +1,14 @@
-# Vibe Coding · Beauty & Mind Blog
+# Vibe Coding · Beauty & Mind
 
-Modern React + TypeScript journal that blends beauty rituals with mental wellbeing. Each post renders with a full-bleed wallpaper highlight followed by rich article content and tag pills.
+Beauty & Mind is a mindful-tech journal that blends calming digital rituals, nervous-system aware beauty practices, and AI-assisted habit design. Each story opens with a full-bleed hero, scroll-friendly Markdown content, and soft‑tone quote highlights.
 
 ## Tech Stack
 
-- React 19 with TypeScript and Vite 7
-- Tailwind CSS 3.4 with custom palette, soft shadows, and editorial typography
-- Content sourced from Markdown files in `src/content/posts/` for easy publishing
+- React 19 + TypeScript (Vite 7)
+- Tailwind CSS 3.4 (custom palette, soft shadows, Avenir typography)
+- Supabase Postgres for content (optional Markdown fallback during development)
+- Formspree for the “Send Love” feedback form
+- Vercel for hosting, Vercel Analytics + Google Analytics 4 for metrics
 
 ## Getting Started
 
@@ -15,26 +17,44 @@ npm install
 npm run dev
 ```
 
-Open the local dev server (usually http://localhost:5173) and edit files inside `src/`. Vite hot reloads changes instantly.
+Open http://localhost:5173 and the site will hot-reload as you edit.
 
 ## Writing Posts
 
-- Posts live as Markdown files under `src/content/posts/`.
-- Each file begins with front matter (between `---`) for title, highlight, summary, metadata, and author details.
-- The Markdown body renders with Tailwind typography so headings, lists, links, and tables just work.
-- To pin a story to the top, add `pinned: true` to the post front matter. Only one post should use it at a time; the rest fall back to newest-first ordering.
+- **Supabase-first**: By default the app fetches posts from the Supabase `posts` table. Each row mirrors the fields used in the UI (slug, title, highlight, summary, markdown content, tags, pinned, accent color, author info, etc.).
+- **Markdown fallback**: During development you can still drop `.md` files into `src/content/posts/`. If Supabase credentials are missing, the app renders the Markdown collection instead.
+- Set `pinned: true` on a single story to make it the hero feature.
 
-To create a new entry, duplicate an existing `.md` file, adjust the front matter, and write your story in Markdown. The newest `publishedAt` date is chosen as the featured hero; others fall into the card grid automatically.
+### Supabase schema
 
-Click any card (or use the “View archive” button) to surface a different story in the hero without leaving the page.
+```sql
+create table posts (
+  id uuid primary key default gen_random_uuid(),
+  slug text unique not null,
+  title text not null,
+  highlight text,
+  category text,
+  cover_image text,
+  reading_time text,
+  published_at timestamptz,
+  summary text,
+  content text,
+  tags text[],
+  pinned boolean default false,
+  accent_color text,
+  author_name text,
+  author_role text,
+  author_avatar text
+);
+```
 
-> **Author photo:** Place your portrait at `public/images/neelofar-khan.jpeg` (or adjust the filename in each post front matter). The blog pulls this path for every byline. Replace the file whenever you want to refresh the image.
+Seed examples live in `src/content/posts/` (for reference) and in the Supabase SQL inserts under `/docs`.
 
 ## Styling Notes
 
-- Tailwind utilities and custom tokens are configured in `tailwind.config.js`
-- Global fonts (Playfair Display + Plus Jakarta Sans) load in `src/index.css`
-- Card shadows and pastel accents match the calm beauty/mental health aesthetic
+- Tailwind config lives in `tailwind.config.js` (Avenir primary font, Sora/Plus Jakarta fallbacks).
+- Global styles and Google Fonts imports are in `src/index.css`.
+- Featured quotes use pink gradients, supporting quotes use neutral greys. Adjust `QuoteHighlight` in `src/App.tsx` if you tweak the palette.
 
 ## Production Build
 
@@ -45,16 +65,15 @@ npm run preview # optional: run a local preview server
 
 ## Analytics & SEO
 
-- Web traffic is captured with [Vercel Analytics](https://vercel.com/docs/analytics) via the `<Analytics />` component in `src/main.tsx`.
-- For Google Analytics 4, create a Measurement ID and add it to an environment variable:
-  - Local development: create `.env.local` with `VITE_GA_MEASUREMENT_ID=G-XXXXXXXXXX`.
+- Vercel Analytics is enabled via `<Analytics />` in `src/main.tsx`.
+- Google Analytics 4: set `VITE_GA_MEASUREMENT_ID` locally and in Vercel.
   - In Vercel: Project → Settings → Environment Variables → add the same key/value in the Production environment and redeploy.
-- Optional: If you want the “Send love” form in the About section to work, create a Formspree (or similar) endpoint and set `VITE_FEEDBACK_FORM_ENDPOINT=https://formspree.io/f/your-id`.
-- Meta tags for search engines and social sharing live in `index.html`. Update the description, keywords, or social image (`public/social-card.jpg`) whenever your brand messaging evolves.
+- Formspree feedback form: set `VITE_FEEDBACK_FORM_ENDPOINT=https://formspree.io/f/your-id`.
+- Meta tags are in `index.html`; social preview image lives at `public/social-card.jpg`.
 
 ## Optional: Supabase CMS
 
-Switch from local Markdown to a hosted database:
+Switch from local Markdown to Supabase:
 
 1. Create a Supabase project and copy the project URL + anon key.
 2. In the Supabase SQL editor, run a migration to create a `posts` table that mirrors the app fields: `slug`, `title`, `highlight`, `category`, `cover_image`, `reading_time`, `published_at`, `summary`, `content`, `tags` (text array or comma-separated text), `pinned`, `accent_color`, plus `author_name`, `author_role`, `author_avatar`.
