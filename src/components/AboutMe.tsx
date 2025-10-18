@@ -50,21 +50,16 @@ const AboutMe = ({ latestPost, onSelectPost }: AboutMeProps) => {
         <div className="flex flex-col gap-4 text-sm leading-relaxed text-ink/75 md:text-base">
           <div className="flex flex-col gap-2">
             <p className="text-xs font-semibold uppercase tracking-[0.35em] text-rose/70">
-              About Neelofar
+              Designing interfaces that feel like instructions for ease.
             </p>
-            <h2 className="text-2xl font-display font-semibold text-ink md:text-3xl">
-              UI storyteller and mindful beauty devotee.
+            <h2 className="text-3xl font-display font-semibold text-ink md:text-[2.6rem] md:leading-[1.15]">
+              I make interfaces that help the body exhale.
             </h2>
           </div>
-          <p>
-            I design digital experiences by day and study how nervous-system care keeps us luminous,
-            focused, and kind to ourselves. Beauty & Mind is my playground for sharing rituals that
-            blend movement, natural skin nourishment, and career ambition without the burnout.
-          </p>
-          <p>
-            You’ll find the same intentionality I bring to user interfaces here: simple routines,
-            natural ingredients, and mindset shifts that feel human, not artificial. I believe the
-            most compelling glow is built from consistent self-investment—inside and out.
+          <p className="text-[1.05rem] leading-relaxed text-ink/75 md:text-[1.1rem] md:leading-[1.75]">
+            On Beauty &amp; Mind, I document the craft behind that feeling—code notes, motion choices,
+            and the micro-habits that keep a UI honest. Less decoration, more nervous-system literacy.
+            If a pixel can’t serve calm, it doesn’t ship.
           </p>
           {latestPost ? (
             <div className="mt-4 flex flex-col gap-4 rounded-[26px] border border-rose/30 bg-rose/10 px-5 py-5">

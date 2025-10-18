@@ -70,6 +70,11 @@ npm run preview # optional: run a local preview server
   - In Vercel: Project → Settings → Environment Variables → add the same key/value in the Production environment and redeploy.
 - Formspree feedback form: set `VITE_FEEDBACK_FORM_ENDPOINT=https://formspree.io/f/your-id`.
 - Meta tags are in `index.html`; social preview image lives at `public/social-card.jpg`.
+- SEO checklist:
+  - Keep post topics focused around mindful tech + beauty so search engines recognise the niche.
+  - Each post slug, title, and highlight come from Supabase—write them with primary keywords.
+  - Update `index.html` and per-post metadata when you add new stories (Open Graph, Twitter cards, etc.).
+  - Share every post on LinkedIn/X/Reddit and repurpose into short updates or carousels—traffic and social signals help the blog get discovered.
 
 ## Optional: Supabase CMS
 

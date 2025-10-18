@@ -91,9 +91,16 @@ const mapRowToPost = (row: Record<string, unknown>): BlogPost | null => {
     if (!Number.isNaN(parsed.getTime())) {
       publishedISO = parsed.toISOString()
     }
+  } else if (row.published_at instanceof Date) {
+    publishedISO = row.published_at.toISOString()
+  } else if (typeof row.created_at === 'string') {
+    const created = new Date(row.created_at)
+    if (!Number.isNaN(created.getTime())) {
+      publishedISO = created.toISOString()
+    }
   }
 
-  const fallback = localPosts[0]
+  const fallback = localPosts.find((post) => post.slug === slug) ?? localPosts[0]
 
   return {
     id: (row.id as string) ?? slug,
@@ -103,7 +110,10 @@ const mapRowToPost = (row: Record<string, unknown>): BlogPost | null => {
     category: (row.category as string) ?? fallback?.category ?? 'Journal',
     coverImage: (row.cover_image as string) ?? fallback?.coverImage ?? '',
     readingTime: (row.reading_time as string) ?? fallback?.readingTime ?? '5 min read',
-    publishedAt: formatPublishedDate(row.published_at as string) ?? fallback?.publishedAt ?? '',
+    publishedAt:
+      formatPublishedDate((row.published_at as string) ?? (row.created_at as string)) ??
+      fallback?.publishedAt ??
+      formatPublishedDate(publishedISO),
     publishedAtISO: publishedISO,
     author: {
       name: (row.author_name as string) ?? fallback?.author.name ?? 'Neelofar Khan',
@@ -114,8 +124,41 @@ const mapRowToPost = (row: Record<string, unknown>): BlogPost | null => {
     tags: normalizeTags(row.tags) ?? fallback?.tags ?? [],
     content: (row.content as string) ?? fallback?.content ?? '',
     pinned: Boolean(row.pinned ?? false),
-    accentColor: (row.accent_color as string) ?? '#d9dee7',
+    accentColor: (row.accent_color as string) ?? fallback?.accentColor ?? '#d9dee7',
   }
+}
+
+const mergePosts = (primary: BlogPost[], fallbackPosts: BlogPost[]): BlogPost[] => {
+  const seen = new Set<string>()
+  const merged: BlogPost[] = []
+
+  const addPost = (post: BlogPost) => {
+    if (!seen.has(post.slug)) {
+      merged.push(post)
+      seen.add(post.slug)
+    }
+  }
+
+  primary.forEach(addPost)
+  fallbackPosts.forEach(addPost)
+
+  return merged
+}
+
+const sortPosts = (stories: BlogPost[]): BlogPost[] => {
+  return [...stories].sort((a, b) => {
+    if (a.pinned && !b.pinned) return -1
+    if (!a.pinned && b.pinned) return 1
+
+    const aTime = new Date(a.publishedAtISO).getTime()
+    const bTime = new Date(b.publishedAtISO).getTime()
+
+    if (Number.isNaN(aTime) && Number.isNaN(bTime)) return 0
+    if (Number.isNaN(aTime)) return 1
+    if (Number.isNaN(bTime)) return -1
+
+    return bTime - aTime
+  })
 }
 
 function App() {
@@ -140,14 +183,13 @@ function App() {
       if (!isCancelled) {
         if (error) {
           console.error('[Supabase] Failed to load posts', error)
-        } else if (data && Array.isArray(data) && data.length > 0) {
+        } else if (data && Array.isArray(data)) {
           const mapped = data
             .map((row) => mapRowToPost(row))
             .filter((post): post is BlogPost => Boolean(post))
 
-          if (mapped.length > 0) {
-            setPosts(mapped)
-          }
+          const merged = sortPosts(mergePosts(mapped, localPosts))
+          setPosts(merged.length > 0 ? merged : localPosts)
         }
         setLoadingPosts(false)
       }
@@ -183,6 +225,16 @@ function App() {
     if (!activeSlug) return posts[0]
     return posts.find((post) => post.slug === activeSlug) ?? posts[0]
   }, [activeSlug, posts])
+
+  const pinnedStories = useMemo(
+    () => posts.filter((post) => post.pinned),
+    [posts],
+  )
+
+  const additionalPinned = useMemo(
+    () => pinnedStories.filter((post) => post.slug !== featured?.slug),
+    [pinnedStories, featured],
+  )
 
   const morePosts = useMemo(() => {
     const remaining = featured ? posts.filter((post) => post.slug !== featured.slug) : posts
@@ -256,12 +308,16 @@ function App() {
           <div className="h-[3px] w-20 rounded-full bg-rose/60" />
         </header>
 
-        <article className="overflow-hidden rounded-[42px] bg-white shadow-soft ring-1 ring-white/70">
-          <div className="relative h-[420px] w-full overflow-hidden bg-ink">
-            <img
-              src={featured.coverImage}
-              alt={featured.title}
-              className="h-full w-full object-cover transition duration-700 ease-out"
+        <div className="flex flex-col gap-3">
+          <span className="inline-flex w-fit items-center gap-2 rounded-full bg-rose/20 px-4 py-1 text-xs font-semibold uppercase tracking-[0.35em] text-rose/80">
+            Featured story
+          </span>
+          <article className="overflow-hidden rounded-[42px] bg-white shadow-soft ring-1 ring-white/70">
+            <div className="relative h-[420px] w-full overflow-hidden bg-ink">
+              <img
+                src={featured.coverImage}
+                alt={featured.title}
+                className="h-full w-full object-cover transition duration-700 ease-out"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/35 to-transparent" />
             <div className="absolute inset-x-8 bottom-12 flex flex-col gap-5 text-white md:inset-x-16 md:bottom-16">
@@ -319,11 +375,11 @@ function App() {
                 <span className="h-1 w-1 rounded-full bg-white/60" />
                 <span>{featured.readingTime}</span>
               </div>
-            </div>
-          </div>
+                </div>
+              </div>
 
-          <div className="space-y-8 px-8 py-12 text-base leading-relaxed text-slate-600 md:px-12 md:py-16 md:text-lg">
-            <QuoteHighlight text={featured.summary} variant="hero" />
+            <div className="space-y-8 px-8 py-12 text-base leading-relaxed text-slate-600 md:px-12 md:py-16 md:text-lg">
+              <QuoteHighlight text={featured.summary} variant="hero" />
             <div className="prose prose-lg max-w-none text-slate-600 prose-headings:font-display prose-headings:text-ink prose-strong:text-ink prose-a:text-ink prose-a:font-semibold hover:prose-a:text-ink/80">
               <ReactMarkdown remarkPlugins={[remarkGfm]}>
                 {featured.content}
@@ -339,8 +395,57 @@ function App() {
                 </span>
               ))}
             </div>
-          </div>
-        </article>
+            </div>
+          </article>
+        </div>
+
+        {additionalPinned.length > 0 ? (
+          <section className="space-y-6">
+            <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+              <div>
+                <h2 className="text-2xl font-display font-semibold text-ink md:text-3xl">
+                  Featured collection
+                </h2>
+                <p className="text-sm text-ink/60 md:text-base">
+                  Other spotlight stories you can revisit anytime.
+                </p>
+              </div>
+            </div>
+            <div className="grid gap-6 md:grid-cols-2">
+              {additionalPinned.map((post) => (
+                <article
+                  key={post.slug}
+                  className="group cursor-pointer overflow-hidden rounded-[32px] bg-white shadow-soft ring-1 ring-transparent transition duration-300 hover:-translate-y-1 hover:ring-rose/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose/70"
+                  onClick={() => {
+                    setActiveSlug(post.slug)
+                    window.scrollTo({ top: 0, behavior: 'smooth' })
+                  }}
+                >
+                  <div className="relative h-60 w-full overflow-hidden">
+                    <img
+                      src={post.coverImage}
+                      alt={post.title}
+                      className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
+                    />
+                    <span className="absolute left-5 top-5 rounded-full bg-white/20 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.35em] text-white">
+                      {post.category}
+                    </span>
+                  </div>
+                  <div className="flex flex-col gap-4 px-6 py-6 text-sm text-slate-600">
+                    <h3 className="font-display text-xl text-ink">{post.title}</h3>
+                    <p className="text-sm text-ink/80">{post.summary}</p>
+                    <button
+                      type="button"
+                      className="self-start rounded-full bg-rose/60 px-4 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-ink transition hover:bg-rose/80"
+                    >
+                      Read spotlight
+                    </button>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+        ) : null}
 
         <section className="space-y-10">
           <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
