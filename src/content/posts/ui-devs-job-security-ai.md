@@ -9,7 +9,7 @@ author:
   name: "Neelofar Khan"
   role: "Product UI Developer"
   avatar: "/images/neelofar-khan.jpeg"
-summary: "A candid reflection on AI in UI engineering — separating fear from reality, examining its limits, and exploring the new responsibilities it introduces for designers and frontend teams."
+summary: "A candid reflection on AI in UI engineering - separating fear from reality, examining its limits, and exploring the new responsibilities it introduces for designers and frontend teams."
 tags:
   - ui-development
   - ai
@@ -23,25 +23,29 @@ Every conference hallway has the same whisper: _“Will AI ship interfaces witho
 
 ## The Reality Check
 
-A few weeks of pairing with AI tools reset my expectations. Models can sketch patterns, but they cannot own outcomes. They hallucinate design tokens, ignore guardrails, and still need someone to worry about accessibility, performance, and the edge cases that keep support teams up at night.
+A few weeks of pairing with AI tools reset my expectations.
 
-What AI did give me was momentum. I spend less time nudging CSS and more time orchestrating the pipeline: prompts, telemetry, rollback plans.
+> **Models can sketch patterns**, but they can’t own outcomes. They hallucinate design tokens, bypass guardrails, and still need someone accountable for accessibility, performance, and the edge cases that keep support teams awake at night.
+
+What AI did give me was momentum. I spend less time nudging CSS and more time orchestrating the system around it - prompts, telemetry, evaluation loops, and rollback plans.
 
 ## New Hats AI Handed Me
 
-1. **Context librarian:** Someone must curate the data AI reads so it stays safe and relevant.
-2. **Quality reviewer:** I now run weekly eval sprints to measure tone, correctness, and latency.
-3. **Experience translator:** When AI suggests changes, I explain the story to product, brand, and legal.
+1. **Context librarian:** Someone has to curate what the model sees - deciding which data is safe, current, and relevant.
+2. **Quality reviewer:** We now run regular evaluation sprints to measure tone, correctness, latency, and regression - work that didn’t exist before models entered the workflow.
+3. **Experience translator:** When AI suggests changes, someone has to explain the intent and impact to product, brand, legal, and support - turning raw output into something the organization can stand behind.
 
-Those responsibilities did not exist on our team two years ago. They are careers now.
+These responsibilities weren’t part of the role two years ago.
+
+They are careers now.
 
 ## Where Humans Still Win
 
 - **Ambiguity:** AI struggles when the brief is incomplete or contradictory. Humans reconcile competing stakeholder goals, read between the lines, and decide what actually matters.
-- **Taste:** Choosing the right motion curve, empty-state copy, or moment of restraint isn’t a formula. It’s judgment — and it remains stubbornly human.
+- **Taste:** Choosing the right motion curve, empty-state copy, or moment of restraint isn’t a formula. It’s judgment - and it remains stubbornly human.
 - **Trust:** When something breaks in production, teams don’t want a probability score. They want accountability. That responsibility still lands on people.
 
-> **A real example:** During our most recent onboarding redesign, we asked for something specific: a live, sensing tutorial — one that pauses when a user hesitates, resumes with context-aware prompts, and never repeats the same tip twice.The AI responded with polished, technically correct carousels. They looked fine. They felt empty.It took a designer, a researcher, and me to choreograph the emotional beats, escalation logic, and moments of restraint. Only after those decisions were made did AI become genuinely useful — not as the author, but as a copy-polish partner.That’s the pattern: humans write the intent. AI helps refine the expression.
+> **A real example:** During our most recent onboarding redesign, we asked for something specific: a live, sensing tutorial - one that pauses when a user hesitates, resumes with context-aware prompts, and never repeats the same tip twice.The AI responded with polished, technically correct carousels. They looked fine. They felt empty.It took a designer, a researcher, and me to choreograph the emotional beats, escalation logic, and moments of restraint. Only after those decisions were made did AI become genuinely useful - not as the author, but as a copy-polish partner.That’s the pattern: humans write the intent. AI helps refine the expression.
 
 ## We've Lived This Before
 
