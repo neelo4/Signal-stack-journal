@@ -52,15 +52,15 @@ const AboutMe = ({ latestPost, onSelectPost }: AboutMeProps) => {
             <p className="text-xs font-semibold uppercase tracking-[0.35em] text-rose/70">
               Designing interfaces that feel like instructions for ease.
             </p>
-            <h2 className="text-3xl font-display font-semibold text-ink md:text-[2.6rem] md:leading-[1.15]">
-              I make interfaces that help the body exhale.
+            <h2 className="text-3xl font-display font-semibold leading-tight tracking-tight text-ink md:text-[2.4rem]">
+              I shape thoughtful interfaces for real teams.
             </h2>
           </div>
-          <p className="text-[1.05rem] leading-relaxed text-ink/75 md:text-[1.1rem] md:leading-[1.75]">
-            On Beauty &amp; Mind, I document the craft behind that feeling—code notes, motion choices,
-            and the micro-habits that keep a UI honest. Less decoration, more nervous-system literacy.
-            If a pixel can’t serve calm, it doesn’t ship.
-          </p>
+            <p className="text-[1.05rem] leading-relaxed text-ink/75 md:text-[1.1rem] md:leading-[1.75]">
+              On Signal Stack Journal I share the playbooks behind resilient model-driven UX-component
+              patterns, telemetry tips, and the rituals that keep interfaces accountable. Less mystique,
+              more measurable outcomes.
+            </p>
           {latestPost ? (
             <div className="mt-4 flex flex-col gap-4 rounded-[26px] border border-rose/30 bg-rose/10 px-5 py-5">
               <div className="flex flex-wrap items-center justify-between gap-3">
