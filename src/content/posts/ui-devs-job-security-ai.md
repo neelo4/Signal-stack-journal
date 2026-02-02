@@ -9,7 +9,7 @@ author:
   name: "Neelofar Khan"
   role: "Product UI Developer"
   avatar: "/images/neelofar-khan.jpeg"
-summary: "A candid reflection on the fear that AI will replace UI engineers, the reality of its limitations, and the new responsibilities it creates for designers and frontend teams."
+summary: "A candid reflection on AI in UI engineering — separating fear from reality, examining its limits, and exploring the new responsibilities it introduces for designers and frontend teams."
 tags:
   - ui-development
   - ai
