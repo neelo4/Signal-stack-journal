@@ -22,6 +22,14 @@ const PostPage = () => {
     )
   }
 
+  const handleBack = () => {
+    if (window.history.length > 1) {
+      navigate(-1)
+    } else {
+      navigate('/')
+    }
+  }
+
   if (!post) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-[#f3f5f8] px-6 text-center text-ink/70">
@@ -42,7 +50,7 @@ const PostPage = () => {
       <div className="mx-auto flex max-w-4xl flex-col gap-10 px-6 pb-24 pt-16 md:px-10">
         <button
           type="button"
-          onClick={() => navigate(-1)}
+          onClick={handleBack}
           className="self-start rounded-full border border-ink/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-ink/60 transition hover:text-ink"
         >
           ← Back
